@@ -16,6 +16,7 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 
 import org.eclipse.che.inject.DynaModule;
+import org.eclipse.che.jdt.javaeditor.JavaReconcileOperationTracker;
 import org.eclipse.che.plugin.java.server.ProjectListeners;
 import org.eclipse.che.plugin.java.server.refactoring.RefactoringManager;
 import org.eclipse.che.plugin.java.server.rest.CodeAssistService;
@@ -53,6 +54,7 @@ public class JdtGuiceModule extends AbstractModule {
         bind(RefactoringManager.class).asEagerSingleton();
         bind(RefactoringService.class);
         bind(SearchService.class);
+        bind(JavaReconcileOperationTracker.class).asEagerSingleton();
     }
 
     @Provides

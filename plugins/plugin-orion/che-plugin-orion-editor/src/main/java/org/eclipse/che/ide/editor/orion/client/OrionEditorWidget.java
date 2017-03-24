@@ -214,6 +214,7 @@ public class OrionEditorWidget extends Composite implements EditorWidget,
         eventBus.addHandler(EditorSettingsChangedEvent.TYPE, new EditorSettingsChangedHandler() {
             @Override
             public void onEditorSettingsChanged(EditorSettingsChangedEvent event) {
+                Log.error(getClass(), "***************** onEditorSettingsChanged");
                 final JSONObject properties = editorPropertiesManager.getJsonEditorProperties();
                 editorViewOverlay.updateSettings(properties.getJavaScriptObject());
             }

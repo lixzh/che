@@ -8,12 +8,13 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.editor.preferences;
+package org.eclipse.che.ide.editor.preferences.editorproperties;
 
-import com.google.gwt.user.client.ui.AcceptsOneWidget;
-import com.google.gwt.user.client.ui.IsWidget;
+/**
+ * The interface contains editor's constants.
+ *
+ * @author Roman Nikitenko
+ */
+public interface EditorSettings {
 
-/** View interface for the preference page for the editor preferences. */
-public interface EditorPreferenceView extends IsWidget {
-    AcceptsOneWidget getEditorPreferencesContainer();
 }

@@ -10,10 +10,12 @@
  *******************************************************************************/
 package org.eclipse.che.ide.api.editor.reconciler;
 
+import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
+import com.google.web.bindery.event.shared.EventBus;
 
 import org.eclipse.che.ide.api.editor.EditorInput;
 import org.eclipse.che.ide.api.editor.document.Document;
@@ -24,8 +26,10 @@ import org.eclipse.che.ide.api.editor.text.Region;
 import org.eclipse.che.ide.api.editor.text.RegionImpl;
 import org.eclipse.che.ide.api.editor.text.TypedRegion;
 import org.eclipse.che.ide.api.editor.texteditor.TextEditor;
+import org.eclipse.che.ide.api.event.EditorSettingsChangedEvent;
 import org.eclipse.che.ide.util.loging.Log;
 
+import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +45,7 @@ import java.util.Map;
  */
 public class ReconcilerWithAutoSave implements Reconciler {
 
-    private static final int DELAY = 5000;
+    private static final int DELAY = 2000;
 
 
     private final Map<String, ReconcilingStrategy> strategies;
@@ -58,6 +62,7 @@ public class ReconcilerWithAutoSave implements Reconciler {
 
         @Override
         public void run() {
+            Log.error(getClass(), "before save " + ReconcilerWithAutoSave.this.hashCode());
             save();
         }
     };
@@ -65,6 +70,7 @@ public class ReconcilerWithAutoSave implements Reconciler {
     @AssistedInject
     public ReconcilerWithAutoSave(@Assisted final String partition,
                                   @Assisted final DocumentPartitioner partitioner) {
+//        Log.error(getClass(), "++++++++++++++++++++++++++++++ ReconcilerWithAutoSave constructor "+ this.hashCode());
         this.partition = partition;
         strategies = new HashMap<>();
         this.partitioner = partitioner;
@@ -84,6 +90,7 @@ public class ReconcilerWithAutoSave implements Reconciler {
     public void install(TextEditor editor) {
         this.editor = editor;
         this.dirtyRegionQueue = new DirtyRegionQueue();
+
         reconcilerDocumentChanged();
     }
 
@@ -96,7 +103,9 @@ public class ReconcilerWithAutoSave implements Reconciler {
     }
 
     private void save() {
+        Log.error(getClass(), "save " + autoSaveEnabled);
         if (autoSaveEnabled) {
+            Log.error(getClass(), "save editor.isDirty() " + editor.isDirty());
             if (editor.isDirty()) {
                 editor.doSave(new AsyncCallback<EditorInput>() {
                     @Override
@@ -106,6 +115,7 @@ public class ReconcilerWithAutoSave implements Reconciler {
 
                     @Override
                     public void onSuccess(EditorInput editorInput) {
+                        Log.error(getClass(), "Success");
                         processNextRegion();
 
                     }
@@ -117,8 +127,14 @@ public class ReconcilerWithAutoSave implements Reconciler {
     }
 
     private void processNextRegion() {
-        final DirtyRegion region = dirtyRegionQueue.removeNextDirtyRegion();
-        process(region);
+        //TODO bug when open java file with errors - no highlighting errors
+
+        Log.error(getClass(), "dirtyRegionQueue.getSize " + dirtyRegionQueue.getSize());
+        while (dirtyRegionQueue.getSize() > 0) {
+            final DirtyRegion region = dirtyRegionQueue.removeNextDirtyRegion();
+            process(region);
+        }
+
     }
 
     /**
@@ -131,7 +147,9 @@ public class ReconcilerWithAutoSave implements Reconciler {
 
         Region region = dirtyRegion;
 
+//        Log.error(getClass(), "/////document length " + getDocument().getContents().length());
         if (region == null) {
+//            Log.error(getClass(), "*********** region == null");
             region = new RegionImpl(0, getDocument().getContents().length());
         }
 
@@ -178,28 +196,35 @@ public class ReconcilerWithAutoSave implements Reconciler {
      * @param event the document event for which to create a dirty region
      */
     private void createDirtyRegion(final DocumentChangeEvent event) {
-        if (event.getLength() == 0 && event.getText() != null) {
+//        Log.error(getClass(), "-------------------- type offset " + event.getOffset());
+//        Log.error(getClass(), "-------------------- type text " + event.getText());
+//        Log.error(getClass(), "-------------------- type length " + event.getLength());
+//        Log.error(getClass(), "-------------------- type RemoveCharCount " + event.getRemoveCharCount());
+        if (event.getRemoveCharCount() == 0 && event.getText() != null && !event.getText().isEmpty()) {
+//            Log.error(getClass(), "**** INSERT ");
             // Insert
             dirtyRegionQueue.addDirtyRegion(new DirtyRegion(event.getOffset(),
-                                                            event.getText().length(),
+                                                            event.getLength(),
                                                             DirtyRegion.INSERT,
                                                             event.getText()));
 
-        } else if (event.getText() == null || event.getText().length() == 0) {
+        } else if (event.getText() == null || event.getText().isEmpty()) {
+//            Log.error(getClass(), "**** REMOVE ");
             // Remove
             dirtyRegionQueue.addDirtyRegion(new DirtyRegion(event.getOffset(),
-                                                            event.getLength(),
+                                                            event.getRemoveCharCount(),
                                                             DirtyRegion.REMOVE,
                                                             null));
 
         } else {
+//            Log.error(getClass(), "**** REMOVE + INSERT ");
             // Replace (Remove + Insert)
             dirtyRegionQueue.addDirtyRegion(new DirtyRegion(event.getOffset(),
-                                                            event.getLength(),
+                                                            event.getRemoveCharCount(),
                                                             DirtyRegion.REMOVE,
                                                             null));
             dirtyRegionQueue.addDirtyRegion(new DirtyRegion(event.getOffset(),
-                                                            event.getText().length(),
+                                                            event.getLength(),
                                                             DirtyRegion.INSERT,
                                                             event.getText()));
         }
@@ -222,7 +247,9 @@ public class ReconcilerWithAutoSave implements Reconciler {
 
     @Override
     public void onDocumentChange(final DocumentChangeEvent event) {
+        Log.error(getClass(), "onDocumentChange ");
         if (documentHandle == null || !documentHandle.isSameAs(event.getDocument())) {
+            Log.error(getClass(), "onDocumentChange RETURN ");
             return;
         }
         createDirtyRegion(event);
@@ -246,11 +273,13 @@ public class ReconcilerWithAutoSave implements Reconciler {
 
     public void disableAutoSave() {
         autoSaveEnabled = false;
+        Log.error(getClass(), "/// disableAutoSave " + autoSaveEnabled);
         autoSaveTimer.cancel();
     }
 
     public void enableAutoSave() {
         autoSaveEnabled = true;
+        Log.error(getClass(), "/// enableAutoSave " + autoSaveEnabled);
         autoSaveTimer.schedule(DELAY);
     }
 }

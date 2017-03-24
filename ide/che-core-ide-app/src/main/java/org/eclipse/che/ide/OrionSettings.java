@@ -8,7 +8,7 @@
  * Contributors:
  *   Codenvy, S.A. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.che.ide.editor.preferences.editorproperties;
+package org.eclipse.che.ide;
 
 import javax.validation.constraints.NotNull;
 
@@ -17,10 +17,7 @@ import javax.validation.constraints.NotNull;
  *
  * @author Roman Nikitenko
  */
-public enum EditorProperties {
-
-    //Autosave
-    ENABLE_AUTO_SAVE("enableAutosave"),
+public enum OrionSettings {
 
     //Tabs section
     TAB_SIZE("tabSize"),
@@ -51,7 +48,7 @@ public enum EditorProperties {
 
     private final String value;
 
-    EditorProperties(@NotNull String value) {
+    OrionSettings(@NotNull String value) {
         this.value = value;
     }
 

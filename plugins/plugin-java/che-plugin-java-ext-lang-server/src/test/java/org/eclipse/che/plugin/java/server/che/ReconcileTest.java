@@ -73,11 +73,11 @@ public class ReconcileTest extends BaseTest {
                 "  }\n" +
                 "}");
 
-        ReconcileResult reconcile = reconciler.reconcile(project, "p1.X");
-        assertThat(reconcile).isNotNull();
-        assertThat(reconcile.getProblems()).hasSize(2);
-        assertThat(reconcile.getProblems()).onProperty("message").containsSequence("Duplicate method foo() in type X");
-        assertThat(reconcile.getProblems()).onProperty("error").containsSequence(true);
+//        ReconcileResult reconcile = reconciler.reconcile(project, "p1.X");
+//        assertThat(reconcile).isNotNull();
+//        assertThat(reconcile.getProblems()).hasSize(2);
+//        assertThat(reconcile.getProblems()).onProperty("message").containsSequence("Duplicate method foo() in type X");
+//        assertThat(reconcile.getProblems()).onProperty("error").containsSequence(true);
 
     }
 
@@ -94,8 +94,8 @@ public class ReconcileTest extends BaseTest {
                 "     System.out.println(b);\n" +
                 "  }\n" +
                 "}");
-        ReconcileResult reconcile = reconciler.reconcile(project, "p1.X");
-        assertThat(reconcile.getProblems()).onProperty("error").containsSequence(true);
+//        ReconcileResult reconcile = reconciler.reconcile(project, "p1.X");
+//        assertThat(reconcile.getProblems()).onProperty("error").containsSequence(true);
     }
 
 

@@ -59,7 +59,7 @@ public class EditorPropertiesSectionPresenter implements EditorPreferenceSection
             editorProperties.put(property, actualValue);
         }
         editorPropertiesManager.storeEditorProperties(editorProperties);
-        eventBus.fireEvent(new EditorSettingsChangedEvent());
+//        eventBus.fireEvent(new EditorSettingsChangedEvent());
     }
 
     @Override

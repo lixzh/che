@@ -15,6 +15,7 @@ import com.google.gwt.user.client.ui.IsWidget;
 
 import org.eclipse.che.ide.api.parts.AbstractPartPresenter;
 import org.eclipse.che.ide.api.editor.EditorAgent.OpenEditorCallback;
+import org.eclipse.che.ide.util.loging.Log;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -48,6 +49,7 @@ public abstract class AbstractEditorPresenter extends AbstractPartPresenter impl
      * @param dirty
      */
     protected void updateDirtyState(boolean dirty) {
+        Log.error(getClass(), "*-*-*-*-*- updateDirtyState " + dirty);
         dirtyState = dirty;
         firePropertyChange(EditorPartPresenter.TITLE_PROPERTY);
         firePropertyChange(PROP_DIRTY);

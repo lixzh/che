@@ -100,6 +100,7 @@ import org.eclipse.che.ide.api.editor.texteditor.TextEditor;
 import org.eclipse.che.ide.api.editor.texteditor.TextEditorOperations;
 import org.eclipse.che.ide.api.editor.texteditor.TextEditorPartView;
 import org.eclipse.che.ide.api.editor.texteditor.UndoableEditor;
+import org.eclipse.che.ide.api.event.EditorSettingsChangedEvent;
 import org.eclipse.che.ide.api.event.FileContentUpdateEvent;
 import org.eclipse.che.ide.api.event.ng.DeletedFilesController;
 import org.eclipse.che.ide.api.hotkeys.HasHotKeyItems;
@@ -123,6 +124,7 @@ import org.eclipse.che.ide.editor.orion.client.menu.EditorContextMenu;
 import org.eclipse.che.ide.editor.orion.client.signature.SignatureHelpView;
 import org.eclipse.che.ide.part.editor.multipart.EditorMultiPartStackPresenter;
 import org.eclipse.che.ide.resource.Path;
+import org.eclipse.che.ide.util.loging.Log;
 import org.vectomatic.dom.svg.ui.SVGResource;
 
 import javax.validation.constraints.NotNull;
@@ -247,6 +249,20 @@ public class OrionEditorPresenter extends AbstractEditorPresenter implements Tex
         keyBindingsManager = new TemporaryKeyBindingsManager();
 
         this.editorView.setDelegate(this);
+        eventBus.addHandler(EditorSettingsChangedEvent.TYPE, new EditorSettingsChangedEvent.EditorSettingsChangedHandler() {
+            @Override
+            public void onEditorSettingsChanged(EditorSettingsChangedEvent event) {
+                Log.error(getClass(), "onEditorSettingsChanged");
+                if (isAutoSaveEnabled())  {
+                    disableAutoSave();
+                    Log.error(getClass(), "------------------------- FALSE");
+                } else {
+                    Log.error(getClass(), "------------------------- TRUE");
+                    enableAutoSave();
+                }
+
+            }
+        });
     }
 
     @Override
@@ -426,6 +442,7 @@ public class OrionEditorPresenter extends AbstractEditorPresenter implements Tex
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
+                Log.error(getClass(), "9999999999999 editorWidget.isDirty() " + editorWidget.isDirty());
                 updateDirtyState(editorWidget.isDirty());
             }
         });
@@ -590,6 +607,7 @@ public class OrionEditorPresenter extends AbstractEditorPresenter implements Tex
         this.documentStorage.saveDocument(getEditorInput(), this.document, false, new AsyncCallback<EditorInput>() {
             @Override
             public void onSuccess(EditorInput editorInput) {
+                Log.error(getClass(), "////////////////////////// save document success");
                 updateDirtyState(false);
                 editorWidget.markClean();
                 afterSave();

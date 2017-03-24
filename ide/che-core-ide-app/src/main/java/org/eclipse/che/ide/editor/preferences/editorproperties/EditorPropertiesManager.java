@@ -21,6 +21,7 @@ import com.google.inject.Singleton;
 import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.ide.api.editor.EditorLocalizationConstants;
 import org.eclipse.che.ide.api.preferences.PreferencesManager;
+import org.eclipse.che.ide.util.loging.Log;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
@@ -32,6 +33,7 @@ import static org.eclipse.che.ide.editor.preferences.editorproperties.EditorProp
 import static org.eclipse.che.ide.editor.preferences.editorproperties.EditorProperties.AUTO_PAIR_PARENTHESES;
 import static org.eclipse.che.ide.editor.preferences.editorproperties.EditorProperties.AUTO_PAIR_QUOTATIONS;
 import static org.eclipse.che.ide.editor.preferences.editorproperties.EditorProperties.AUTO_PAIR_SQUARE_BRACKETS;
+import static org.eclipse.che.ide.editor.preferences.editorproperties.EditorProperties.ENABLE_AUTO_SAVE;
 import static org.eclipse.che.ide.editor.preferences.editorproperties.EditorProperties.EXPAND_TAB;
 import static org.eclipse.che.ide.editor.preferences.editorproperties.EditorProperties.SHOW_ANNOTATION_RULER;
 import static org.eclipse.che.ide.editor.preferences.editorproperties.EditorProperties.SHOW_CONTENT_ASSIST_AUTOMATICALLY;
@@ -67,6 +69,7 @@ public class EditorPropertiesManager {
 
         names.put(TAB_SIZE.toString(), locale.propertyTabSize());
         names.put(EXPAND_TAB.toString(), locale.propertyExpandTab());
+        names.put(ENABLE_AUTO_SAVE.toString(), locale.propertyAutoSave());
         names.put(AUTO_PAIR_PARENTHESES.toString(), locale.propertyAutoPairParentheses());
         names.put(AUTO_PAIR_BRACES.toString(), locale.propertyAutoPairBraces());
         names.put(AUTO_PAIR_SQUARE_BRACKETS.toString(), locale.propertyAutoPairSquareBrackets());
@@ -96,6 +99,7 @@ public class EditorPropertiesManager {
         defaultProperties.put(EXPAND_TAB.toString(), JSONBoolean.getInstance(true));
 
         // SourceCodeActions (typing)
+        defaultProperties.put(ENABLE_AUTO_SAVE.toString(), JSONBoolean.getInstance(true));
         defaultProperties.put(AUTO_PAIR_PARENTHESES.toString(), JSONBoolean.getInstance(true));
         defaultProperties.put(AUTO_PAIR_BRACES.toString(), JSONBoolean.getInstance(true));
         defaultProperties.put(AUTO_PAIR_SQUARE_BRACKETS.toString(), JSONBoolean.getInstance(true));
@@ -145,10 +149,10 @@ public class EditorPropertiesManager {
     /** Returns saved settings for editor if they exist or default settings otherwise. */
     public Map<String, JSONValue> getEditorProperties() {
         String properties = preferencesManager.getValue(EDITOR_SETTINGS_PROPERTY);
-        if (properties == null) {
+//        if (properties == null) {
             return getDefaultEditorProperties();
-        }
-        return readPropertiesFromJson(properties);
+//        }
+//        return readPropertiesFromJson(properties);
     }
 
     /** Returns saved settings for editor in json format if they exist or default settings otherwise. */
@@ -157,6 +161,7 @@ public class EditorPropertiesManager {
 
         Map<String, JSONValue> editorProperties = getEditorProperties();
         for (String property : editorProperties.keySet()) {
+            Log.error(getClass(), "+++ " + property);
             jsonProperties.put(property, editorProperties.get(property));
         }
         return jsonProperties;
